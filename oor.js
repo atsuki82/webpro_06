@@ -1,4 +1,11 @@
-let oneokrock  = [
+const express = require("express");
+const app = express();
+
+//app.set('view engine', 'ejs');
+//app.use("/public", express.static(__dirname + "/public"));
+
+
+let tour  = [
   { id:1, year:"2025", name:"ONE OK ROCK DETOX EUROPEAN TOUR 2025", album:"DETOX", days:"2025/10/06～2025/10/30 (15公演)", region:"ヨーロッパ" },
   { id:2, year:"2025", name:"ONE OK ROCK DETOX JAPAN TOUR 2025", album:"DETOX", days:"2025/08/16～2025/09/14 (7公演)", region:"日本" },
   { id:3, year:"2025", name:"ONE OK ROCK DETOX North American Tour 2025", album:"DETOX", days:"2025/05/13～2025/06/07 (15公演)", region:"北米" },
@@ -11,7 +18,7 @@ let oneokrock  = [
   { id:10, year:"2022", name:"ONE OK ROCK LUXURY DISEASE TOUR NORTH AMERICAN 2022", album:"Luxury Disease", days:"2022/09/19～2022/10/20 (23公演)", region:"北米" },
   { id:11, year:"2021", name:"ONE OK ROCK 2021「Day to Night Acoustic Sessions」at STELLAR THEATER",  days:"2021/07/22～2021/07/31 (7公演)", region:"日本" },
   { id:12, year:"2020", name:"ONE OK ROCK 2020「Field of Wonder」at Stadium Live Streaming",  days:"2020年10月11日 (1公演)", region:"ワールド" },
-  { id:13, year:"2020", name:"ONE OK ROCK 2020 "Field of Wonder" at Stadium Live Streaming",  days:"2020年10月11日", region:"無観客による配信ライブ" },
+  { id:13, year:"2020", name:'ONE OK ROCK 2020 "Field of Wonder" at Stadium Live Streaming',  days:"2020年10月11日", region:"無観客による配信ライブ" },
   { id:14, year:"2020", name:"ONE OK ROCK EYE OF THE STORM AUSTRALIA TOUR 2020", album:"Eye of the Storm", days:"2020/03/02～2020/03/10 (5公演)", region:"オーストラリア" },
   { id:15, year:"2019", name:"ONE OK ROCK 2019-2020 EYE OF THE STORM JAPAN TOUR", album:"Eye of the Storm", days:"2019/09/22～2020/01/30 (33公演)", region:"日本" },
   { id:16, year:"2019", name:"EYE OF THE STORM WORLD TOUR 2019 - US & Mexico", album:"Eye of the Storm", days:"2019/07/17～2019/07/27 (33公演)", region:"北米" },
@@ -41,15 +48,78 @@ let oneokrock  = [
   { id:40, year:"2014", name:"ONE OK ROCK 2014 「Mighty Long Fall at Yokohama Stadium」", days:"2014/09/13～2014/09/14 (2公演)", region:"日本" },
   { id:41, year:"2014", name:"ONE OK ROCK at Warped Tour 2014", days:"2014/04/01～2014/07/06 (19公演)", region:"北米" },
   { id:42, year:"2014", name:"ONE OK ROCK Live at Northern America 2014", days:"2014/02/07～2014/05/17 (4公演)", region:"北米" },
-  { id:9, year:"2023", name:"", album:"", days:"", region:"" },
-  { id:9, year:"2023", name:"", album:"", days:"", region:"" },
-  { id:9, year:"2023", name:"", album:"", days:"", region:"" },
-  { id:9, year:"2023", name:"", album:"", days:"", region:"" },
-  { id:9, year:"2023", name:"", album:"", days:"", region:"" },
-  { id:9, year:"2023", name:"", album:"", days:"", region:"" },
-  { id:9, year:"2023", name:"", album:"", days:"", region:"" },
-  { id:9, year:"2023", name:"", album:"", days:"", region:"" },
-  { id:9, year:"2023", name:"", album:"", days:"", region:"" },
-  { id:9, year:"2023", name:"", album:"", days:"", region:"" },
-
+  { id:43, year:"2013", name:"「Who are you??Who are we??」TOUR", days:"2013/10/23～2013/12/07 (12公演)", region:"ヨーロッパ，アジア" },
+  { id:44, year:"2013", name:"東北ライブハウス大作戦 ACOUSTIC TOUR", days:"2013/10/04～2013/10/07 (3公演)", region:"日本" },
+  { id:45, year:"2013", name:"ONE OK ROCK 2013「人生×君=」TOUR", album:"人生×僕=", days:"2013/05/11～2013/06/16 (11公演)", region:"日本" },
+  { id:46, year:"2012", name:"「The Beginning」TOUR", days:"2012/09/04～2012/11/16 (25公演)", region:"日本，アジア" },
+  { id:47, year:"2012", name:"「Start Walking The World」TOUR", days:"2012/05/30～2012/06/30 (7公演)", region:"日本，アジア" },
+  { id:48, year:"2011", name:"ONE OK ROCK 2011-2012「残響リファレンス」TOUR", album:"残響リファレンス", days:"2011/11/04～2012/01/22 (16公演)", region:"日本" },
+  { id:49, year:"2011", name:"Answer is aLive TOUR", days:"011/04/25～2011/06/04 (10公演)", region:"日本" },
+  { id:50, year:"2010", name:"「This is my own judgment」TOUR", album:"Nicheシンドローム", days:"2010/06/27～2010/12/11 (23公演)", region:"日本" },
+  { id:51, year:"2009", name:"ONE OK ROCK 2009「Overcome Emotion」TOUR", album:"感情エフェクト", days:"2009/09/05～2009/11/26 (22公演)", region:"日本" },
+  { id:52, year:"2009", name:"ONE OK ROCK 2009「Emotion Effect」TOUR", album:"感情エフェクト", days:"2009/01/10～2009/06/07 (31公演)", region:"日本" },
+  { id:53, year:"2008", name:"ONE OK ROCK LIVE TOUR 2008「BEAM OF LIGHT」", album:"BEAM OF LIGHT", days:"2008/07/05～2008/09/28 (21公演)", region:"日本" },
+  { id:54, year:"2008", name:"ONE OK ROCK TOUR 2008「WHAT TIME IS IT NOW?」", days:"2008/04/01～2008/04/20 (8公演)", region:"日本" },
+  { id:55, year:"2007", name:'ONE OK ROCK 東名阪クアトロ"トロトロ"ツアー 07', days:"2007/12/19～2007/12/28 (3公演)", region:"日本" },
+  { id:56, year:"2007", name:"ONE OK ROCK【正夢のまた夢】ツアー '07", album:"ゼイタクビョウ", days:"2007/08/04～2007/08/29 (9公演)", region:"日本" },
 ];
+
+app.get("/oor", (req, res) => {
+  // 本来ならここにDBとのやり取りが入る
+  res.render('oor', {data: tour} );
+});
+
+// Create
+app.get("/oor/create", (req, res) => {
+  res.redirect('/oor.html');
+});
+
+app.get("/oor/:number", (req, res) => {
+  // 本来ならここにDBとのやり取りが入る
+  const number = req.params.number;
+  const detail = tour[ number ];
+  res.render('oor_detail', {data: detail} );
+});
+
+// Delete
+app.get("/oor/delete/:number", (req, res) => {
+  // 本来は削除の確認ページを表示する
+  // 本来は削除する番号が存在するか厳重にチェックする
+  // 本来ならここにDBとのやり取りが入る
+  tour.splice( req.params.number, 1 );
+  res.redirect('/oor' );
+});
+
+// Create
+app.post("/oor", (req, res) => {
+  // 本来ならここにDBとのやり取りが入る
+  const id = tour.length + 1;
+  const name = req.body.name;
+  const album = req.body.change;
+  const days = req.body.passengers;
+  const region = req.body.distance;
+  oor.push( { id: id, name: name, album: album, days: days, region: region } );
+  console.log( oor );
+  res.render('oor', {data: oor} );
+});
+
+// Edit
+app.get("/oor/edit/:number", (req, res) => {
+  // 本来ならここにDBとのやり取りが入る
+  const number = req.params.number;
+  const detail = tour[ number ];
+  res.render('oor_edit', {id: number, data: detail} );
+});
+
+// Update
+app.post("/oor/update/:number", (req, res) => {
+  // 本来は変更する番号が存在するか，各項目が正しいか厳重にチェックする
+  // 本来ならここにDBとのやり取りが入る
+  tour[req.params.number].name = req.body.name;
+  tour[req.params.number].album = req.body.album;
+  tour[req.params.number].days = req.body.days;
+  tour[req.params.number].region = req.body.region;
+  console.log( tour );
+  res.redirect('/oor' );
+});
+app.listen(3000, () => console.log("Example app listening on port 3000!"));

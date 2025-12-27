@@ -1,0 +1,21 @@
+<!Doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title><%= data.name %></title>
+</head>
+<body>
+  <h2><%= data.name %>の詳細</h2>
+  <table>
+    <tr><th>項目</th><th>データ</th></tr>
+    <tr><td>アトラクション名</td><td><%= data.name %></td></tr>
+    <tr><td>エリア</td><td><%= data.area %></td></tr>
+    <tr><td>定員</td><td><%= data.capacity %></td></tr>
+    <tr><td>所要時間</td><td><%= data.duration %></td></tr>
+    <tr><td>待ち時間</td><td><%= data.wait %></td></tr>
+  </table>
+  <a href="/disney/edit/<%= id %>">編集</a>
+  <a href="/disney/delete_confirm/<%= id %>">削除</a>
+  <a href="/disney/list/<%= data.park %>">一覧に戻る</a>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!Doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title><%= data.name %></title>
+</head>
+<body>
+  <h2><%= data.name %>の編集</h2>
+  <form action="/cit/update/<%= data.id - 1 %>" method="POST">
+    <table>
+      <tr><th>項目</th><th>データ</th></tr>
+      <tr><td>授業</td><td><input type="text" name="name" value="<%= data.name %>"></td></tr>
+      <tr><td>曜日時限</td><td><input type="text" name="jikann" value="<%= data.jikann %>"></td></tr>
+      <tr><td>科目担当者</td><td><input type="text" name="kyousi" value="<%= data.kyousi %>"></td></tr>
+      <tr><td>単位</td><td><input type="text" name="tanni" value="<%= data.tanni %>"></td></tr>
+      <tr><td>教室</td><td><input type="text" name="basyo" value="<%= data.basyo %>"></td></tr>
+      <tr><td>感想</td><td><input type="text" name="raku" value="<%= data.raku %>"></td></tr>
+    </table>
+    <input type="submit" values="登録">
+  </form>
+  <a href="/cit/">授業一覧に戻る</a>
+</body>
+</html>

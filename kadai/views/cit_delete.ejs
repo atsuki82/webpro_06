@@ -1,0 +1,21 @@
+<!Doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>削除の確認</title>
+</head>
+<body>
+  <h2>以下の授業を削除しますか？</h2>
+  <table>
+    <tr><th>項目</th><th>データ</th></tr>
+    <tr><td>授業</td><td><%= data.name %></td></tr>
+    <tr><td>曜日時限</td><td><%= data.jikann %></td></tr>
+  </table>
+  
+  <form action="/cit/delete/<%= id %>" method="POST">
+    <input type="submit" value="本当に削除する">
+  </form>
+  <br>
+  <a href="/cit/<%= id %>">詳細に戻る</a>
+</body>
+</html>

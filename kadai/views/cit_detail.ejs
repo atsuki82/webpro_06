@@ -1,0 +1,22 @@
+<!Doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title><%= data.name %></title>
+</head>
+<body>
+  <h2><%= data.name %>の詳細</h2>
+  <table>
+    <tr><th>項目</th><th>データ</th></tr>
+    <tr><td>授業</td><td><%= data.name %></td></tr>
+    <tr><td>曜日時限</td><td><%= data.jikann %></td></tr>
+    <tr><td>科目担当者</td><td><%= data.kyousi %></td></tr>
+    <tr><td>単位</td><td><%= data.tanni %></td></tr>
+    <tr><td>教室</td><td><%= data.basyo %></td></tr>
+    <tr><td>感想</td><td><%= data.raku %></td></tr>
+  </table>
+  <a href="/cit/edit/<%= id %>">編集</a>
+  <a href="/cit/delete_confirm/<%= id %>">削除</a>
+  <a href="/cit">授業一覧に戻る</a>
+</body>
+</html>

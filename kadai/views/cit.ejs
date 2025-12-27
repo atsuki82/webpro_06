@@ -1,0 +1,21 @@
+<!Doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>千葉工業大学情報工学科の前期授業</title>
+</head>
+<body>
+  <h2>千葉工業大学情報工学科の前期授業詳細</h2>
+  <table>
+    <tr><th>ID</th><th>授業</th></tr>
+      <% let number = 0 %>
+      <% for( let row of data ) { %>
+        <tr><td><%= row.id %></td>
+        <td><a href="/cit/<%= number %>"><%= row.name %></a></td>
+        <td><a href="/cit/delete_confirm/<%= number %>">削除</a></td> </tr>
+        <% number += 1 %>
+      <% } %>
+  </table>
+  <a href="/cit/create">追加</a>
+</body>
+</html>

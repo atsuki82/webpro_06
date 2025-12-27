@@ -1,0 +1,21 @@
+<!Doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ONEOKROCKの歴代ツアー</title>
+</head>
+<body>
+  <h2>ONEOKROCKの歴代ツアーの詳細</h2>
+  <table>
+    <tr><th>ID</th><th>ツアー名</th></tr>
+      <% let number = 0 %>
+      <% for( let row of data ) { %>
+        <tr><td><%= row.id %></td>
+        <td><a href="/oor/<%= number %>"><%= row.name %></a></td>
+        <td><a href="/oor/delete_confirm/<%= number %>">削除</a></td> </tr>
+        <% number += 1 %>
+      <% } %>
+  </table>
+  <a href="/oor/create">追加</a>
+</body>
+</html>

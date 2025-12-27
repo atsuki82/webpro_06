@@ -1,0 +1,21 @@
+<!Doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>削除の確認</title>
+</head>
+<body>
+  <h2>以下のツアーを削除しますか？</h2>
+  <table>
+    <tr><th>項目</th><th>データ</th></tr>
+    <tr><td>ツアー名</td><td><%= data.name %></td></tr>
+    <tr><td>アルバム</td><td><%= data.album %></td></tr>
+  </table>
+  
+  <form action="/oor/delete/<%= id %>" method="POST">
+    <input type="submit" value="本当に削除する">
+  </form>
+  <br>
+  <a href="/oor/<%= id %>">詳細に戻る</a>
+</body>
+</html>

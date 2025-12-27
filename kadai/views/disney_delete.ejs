@@ -1,0 +1,21 @@
+<!Doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>削除の確認</title>
+</head>
+<body>
+  <h2>以下のアトラクションを削除しますか？</h2>
+  <table>
+    <tr><th>項目</th><th>データ</th></tr>
+    <tr><td>アトラクション名</td><td><%= data.name %></td></tr>
+    <tr><td>エリア</td><td><%= data.area %></td></tr>
+  </table>
+  
+  <form action="/disney/delete/<%= id %>" method="POST">
+    <input type="submit" value="本当に削除する">
+  </form>
+  <br>
+  <a href="/disney/list/<%= data.park %>">キャンセルして一覧に戻る</a>
+</body>
+</html>

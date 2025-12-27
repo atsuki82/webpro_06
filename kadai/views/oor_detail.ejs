@@ -1,0 +1,20 @@
+<!Doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title><%= data.name %></title>
+</head>
+<body>
+  <h2><%= data.name %>の詳細</h2>
+  <table>
+    <tr><th>項目</th><th>データ</th></tr>
+    <tr><td>ツアー名</td><td><%= data.name %></td></tr>
+    <tr><td>アルバム</td><td><%= data.album %></td></tr>
+    <tr><td>ツアーの日程</td><td><%= data.days %></td></tr>
+    <tr><td>ツアー地域</td><td><%= data.region %></td></tr>
+  </table>
+  <a href="/oor/edit/<%= id %>">編集</a>
+  <a href="/oor/delete_confirm/<%= id %>">削除</a>
+  <a href="/oor">ツアー一覧に戻る</a>
+</body>
+</html>

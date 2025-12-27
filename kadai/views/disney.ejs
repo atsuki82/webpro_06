@@ -1,0 +1,23 @@
+<!Doctype html>
+<html>
+<head><meta charset="utf-8"><title><%= parkName %></title></head>
+<body>
+  <h2><%= parkName %> アトラクション詳細</h2>
+  <table border="1">
+    <tr><th>ID</th><th>アトラクション名</th><th>操作</th></tr>
+      <% let number = 0 %>
+      <% for( let row of data ) { %>
+        <% if (row.park === targetPark) { %>
+          <tr>
+            <td><%= row.id %></td>
+            <td><a href="/disney/<%= number %>"><%= row.name %></a></td>
+            <td><a href="/disney/delete_confirm/<%= number %>">削除</a></td>
+          </tr>
+        <% } %>
+        <% number += 1 %>
+      <% } %>
+  </table>
+  <br>
+  <a href="/disney/create">追加</a> | <a href="/disney">パーク選択に戻る</a>
+</body>
+</html>
