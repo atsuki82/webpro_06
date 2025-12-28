@@ -83,11 +83,7 @@ app.get("/oor/create", (req, res) => {
 app.get("/oor/:number", (req, res) => {
   const number = req.params.number;
   const detail = tour[number];
-  if (detail) {
-    res.render('oor_detail', { data: detail, id: number });
-  } else {
-    res.status(404).send("ツアーが見つかりません");
-  }
+  res.render('oor_detail', { data: detail, id: number });
 });
 
 
@@ -96,11 +92,7 @@ app.get("/oor/:number", (req, res) => {
 app.get("/oor/delete_confirm/:number", (req, res) => {
   const number = req.params.number;
   const detail = tour[number];
-  if (detail) {
-    res.render('oor_delete', { data: detail, id: number });
-  } else {
-    res.status(404).send("データが見つかりません");
-  }
+  res.render('oor_delete', { data: detail, id: number });
 });
 
 // 実際の削除実行 (POSTメソッドで安全に削除)
