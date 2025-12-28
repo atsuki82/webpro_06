@@ -1,0 +1,384 @@
+%\documentclass[uplatex, 11pt, a4j]{jsarticle}
+
+\documentclass[uplatex]{jsarticle}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[dvipdfmx]{color}
+
+\usepackage[uplatex,deluxe]{otf} % UTF
+\usepackage[noalphabet]{pxchfon} % must be after otf package
+\setcounter{tocdepth}{3}
+\usepackage{float}
+\usepackage{moreverb}
+\usepackage{lscape}
+\usepackage{listings}
+
+%\pagestyle{empty}
+%\usepackage{wrapfig}
+
+%\usepackage{EasyLayout}
+\usepackage{listings}
+\usepackage{ascmac}
+
+% --- 追加設定 ---
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{verbatimbox}
+\usepackage{color}
+\title{機能証明報告書：文字列を大きく表示するライブラリ}
+\author{田中 淳希}
+\date{2025年12月20日}
+
+\begin{document}
+
+\maketitle
+
+\section{GithabのURL}
+https://github.com/atsuki82/webpro\_06.git
+
+\section{開発者向け}
+
+\subsection{ONEOKROCK歴代ツアー一覧システム}
+
+\subsubsection{概要}
+本システムは，世界的に活動するロックバンド「ONE OK ROCK」の膨大な活動実績を整理・管理するためのWebアプリケーションである．Node.js環境下で動作し，メモリ上の配列を用いてデータのCRUD操作を高速に実現している．本設計の主眼は，過去のツアー名称とそれに紐付くアルバム，日程，開催地域を構造化し，ユーザーが目的の公演情報を直感的に検索・管理できるインターフェースを提供することにある．
+
+\subsubsection{データ構造}
+データ構造は，情報の整合性を保つため厳密に定義されたオブジェクト配列を採用している．各要素はユニークなIDを保持し，文字列型の属性を持つ．
+
+\begin{table}[H]
+\centering
+\caption{ドームシステムのデータ構造}
+\begin{tabular}{|l|c|l|c|}
+ \hline
+キー名 & 型 & 説明 \\ 
+ \hline
+id & Number & 公演管理番号 \\
+ \hline
+name & String & ツアー正式名称 \\
+ \hline
+album & String & 提携アルバム名 \\
+ \hline
+days & String & 全体の日程期間 \\
+ \hline
+region & String & 開催された主な地域・国 \\ 
+ \hline
+\end{tabular}
+\end{table}
+
+\subsubsection{HTTP メソッドとリソース名一覧}
+本システムでは，RESTfulな設計思想に基づき，以下のエンドポイントを定義している．
+\begin{table}[H]
+\centering
+\caption{ドームシステムのHTTPメソッド一覧}
+\begin{tabular}{|l|c|l|c|}
+ \hline
+機能 & メソッド & リソースパス & 備考 \\ 
+ \hline
+ツアー一覧表示 & GET & /oor & 全ツアー情報をテーブル形式で一覧表示する \\
+ \hline
+ 新規作成画面 & GET & /oor/create & 静的HTMLファイル（oor.html）を表示する \\
+ \hline
+詳細表示 & GET & /oor/:number & 添字を用いて特定のツアー詳細情報を表示する \\
+ \hline
+削除確認 & GET & /oor/delete\_confirm/:number & 削除実行前にユーザーへ最終確認を行う画面 \\
+ \hline
+削除実行 & POST & /oor/delete/:number & spliceを用いて配列から要素を削除し一覧へ戻る \\
+\hline
+新規登録 & POST & /oor & フォームの値を元に新しいオブジェクトを配列に追加 \\ 
+\hline 
+編集画面 & GET & /oor/edit/:number & 既存情報をフォーム内に保持した状態で表示する \\
+\hline 
+更新処理 & POST & /oor/update/:number & 既存の配列要素の内容を書き換え一覧へ戻る \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{遷移図}
+システムの基本フローは，一覧画面を起点とする．一覧上のリンクから詳細画面へ遷移し，そこから編集または削除確認へと分岐する．全ての更新・削除処理後は，情報の最新性を担保するため，一覧画面へのリダイレクトが行われる．
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=0.95\textwidth,clip]{oor.png}
+  \end{center}
+  \caption{\textgt{
+  oorシステムの遷移図
+  }}
+  \label{oor}
+\end{figure}
+
+\subsubsection{リソース名ごとの機能詳細}
+\begin{itemize} 
+\item \textbf{GET /oor} \ システムのエントリポイントであり，登録されているすべてのツアー情報を一覧表示する．EJSのループ処理を用いて，配列内のデータを動的にテーブルへ出力し，各データへの詳細リンクを提供する． 
+\item \textbf{GET /oor/create} \ 新規ツアー情報を入力するためのフォーム画面（静的HTML）をクライアントへ送信する． 
+\item \textbf{GET /oor/:number} \ URLパラメータとして受け取った添字（number）を元に，配列内の特定のツアー情報を取得し，詳細画面（\texttt{oor\_detail.ejs}）を表示する．
+\item \textbf{GET /oor/delete\_confirm/:number} \ 削除対象のデータを再確認させるための画面を表示する．誤操作によるデータの消失を防ぐためのステップとして機能する．
+\item \textbf{POST /oor/delete/:number} \ 受け取った添字を用いて \texttt{tour.splice(number, 1)} を実行し，メモリ上の配列から該当データを物理的に削除する．処理完了後は一覧画面へリダイレクトする．
+\item \textbf{POST /oor} \ 新規作成フォームから送信されたデータを \texttt{req.body} 経由で取得し，新しいオブジェクトとして配列の末尾に追加する． \item \textbf{GET /oor/edit/:number} \ 既存のデータを編集するための画面を表示する．現在の登録内容をフォームの初期値としてセットすることで，ユーザーの修正作業を補助する．
+ \item \textbf{POST /oor/update/:number} \ フォームから送信された修正内容を，指定された添字の配列要素へ上書き保存する． \end{itemize}
+
+\subsection{ディズニーアトラクション一覧システム}
+\subsubsection{概要}
+本システムは，東京ディズニーリゾートにおけるアトラクションの動向を記録する管理ツールである．本設計の最大の特徴は，膨大なアトラクション情報を「ランド」と「シー」というパーク別のカテゴリに分離し，利用者の目的に応じた情報の絞り込みを段階的に提供する点にある．
+
+\subsubsection{データ構造}
+パーク属性を追加することで，一つの配列内で複数のカテゴリを混在管理できる拡張性を持たせている．
+
+\begin{table}[H]
+\centering
+\caption{ドームシステムのデータ構造}
+\begin{tabular}{|l|c|l|c|}
+ \hline
+キー名 & 型 & 説明 \\ 
+ \hline
+id & Number & 公演管理番号 \\
+ \hline
+park & String & 'ランド' または 'シー' \\
+ \hline
+name & String & アトラクションの名称 \\
+ \hline
+area & String & 設置されているテーマポート名 \\
+ \hline
+capacity & String & 定員・収容人数 \\
+ \hline
+duration & String & 体験時間 \\
+ \hline
+wait & String & 想定される平均待ち時間 \\ 
+ \hline
+\end{tabular}
+\end{table}
+
+\subsubsection{HTTP メソッドとリソース名一覧}
+本システムでは，RESTfulな設計思想に基づき，以下のエンドポイントを定義している．
+\begin{table}[H]
+\centering
+\caption{ドームシステムのHTTPメソッド一覧}
+\begin{tabular}{|l|c|l|c|}
+ \hline
+機能 & メソッド & リソースパス & 備考 \\
+\hline 
+パーク選択 & GET & /disney & ランドまたはシーを選択する初期メニュー画面 \\
+\hline 
+パーク別一覧 & GET & /disney/list/:park & 指定パーク（land/sea）のデータのみを抽出表示 \\
+\hline 
+新規作成画面 & GET & /disney/create & 新規登録用のHTML（disney\_new.html）へ遷移 \\
+\hline 
+詳細表示 & GET & /disney/:number & 個別の定員・所要時間等を表示 \\
+\hline 
+削除確認 & GET & /disney/delete\_confirm/:number & 誤操作防止のための確認用テンプレートを表示 \\
+\hline 
+削除実行 & POST & /disney/delete/:number & 削除後，そのアトラクションの所属パーク一覧へ戻る \\
+\hline 
+新規登録 & POST & /disney & 新データを追加し，登録したパークの一覧へ戻る \\
+\hline 
+編集画面 & GET & /disney/edit/:number & アトラクション情報を編集するための入力画面 \\
+\hline 
+更新処理 & POST & /disney/update/:number & 内容を上書きし，所属パークの一覧へ戻る \\
+ \hline
+\end{tabular}
+\end{table}
+
+\subsubsection{遷移図}
+
+利用者はまず \texttt{/disney} でランドかシーを選択する．その後，選択に応じた一覧へ遷移する．この際，パンくずリストのように，詳細画面から「パーク選択に戻る」か「一覧に戻る」かを自由に選択できる循環的なナビゲーションを実装している．
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=0.95\textwidth,clip]{disney.png}
+  \end{center}
+  \caption{\textgt{
+  disneyシステムの遷移図
+  }}
+  \label{disney}
+\end{figure}
+
+\subsubsection{リソース名ごとの機能詳細}
+\begin{itemize} 
+\item \textbf{GET /disney} \ パーク選択画面（\texttt{disney.html}）を表示する．利用者が「ランド」または「シー」を選択するための起点となる． 
+\item \textbf{GET /disney/list/:park} \ パラメータ \texttt{:park} に基づき，全データから該当するパークのアトラクションのみをフィルタリングして一覧表示する．動的にページタイトルを書き換える処理を含む． 
+\item \textbf{GET /disney/create} \ 新規アトラクション登録用の静的HTMLへリダイレクトする． 
+\item \textbf{GET /disney/:number} \ 特定のアトラクションの定員，所要時間，待ち時間等を表示する． 
+\item \textbf{GET /disney/delete\_confirm/:number} \ 指定されたアトラクションの削除確認画面を表示する． 
+\item \textbf{POST /disney/delete/:number} \ データを削除した後，削除されたアトラクションが所属していたパークを特定し，そのパークの「一覧画面」へ戻るよう制御する． 
+\item \textbf{POST /disney} \ 新しいアトラクション情報を配列に追加する．登録完了後は，選択されたパークの一覧画面へ自動的にリダイレクトされる． 
+\item \textbf{GET /disney/edit/:number} \ アトラクションの情報を修正するための編集フォームを表示する． 
+\item \textbf{POST /disney/update/:number} \ 編集された内容を配列に反映させる．反映後は，元のパーク一覧画面へ遷移する． 
+\end{itemize}
+
+\subsection{千葉工業大学情報工学科の前期授業一覧システム}
+\subsubsection{概要}
+本システムは，本学情報工学科の学生が履修する主要科目を網羅した管理ツールである．シラバス上の形式的なデータだけでなく，受講者の主観に基づく「単位取得の難易度や受講の感想」を項目として設けることで，実用的な学生生活支援ツールとしての側面を持たせている．
+
+\subsubsection{データ構造}
+授業の時間枠や担当教員，教室情報，コメントを保持する．
+\begin{table}[H]
+\centering
+\caption{ドームシステムのデータ構造}
+\begin{tabular}{|l|c|l|c|}
+ \hline
+キー名 & 型 & 説明 \\ 
+ \hline
+id & Number & 科目番号 \\
+ \hline
+name & String & 授業科目名称 \\
+ \hline
+jikann & String & 曜日・時限 \\
+ \hline
+kyousi & String & 担当教員（複数名対応） \\
+ \hline
+tanni & String & 取得可能単位数 \\
+ \hline
+basyo & String & 実施される教室・演習室 \\
+ \hline
+raku & String & 受講者の感想・楽単度 \\ 
+ \hline
+\end{tabular}
+\end{table}
+
+\subsubsection{HTTP メソッドとリソース名一覧}
+本システムでは，RESTfulな設計思想に基づき，以下のエンドポイントを定義している．
+\begin{table}[H]
+\centering
+\caption{ドームシステムのHTTPメソッド一覧}
+\begin{tabular}{|l|c|l|c|}
+ \hline
+機能 & メソッド & リソースパス & 備考 \\
+\hline 
+一覧表示 & GET & /cit & 履修している全15科目のリストを表示 \\
+\hline 
+新規作成画面 & GET & /cit/create & 授業情報を追加するためのHTMLを表示 \\
+\hline 
+詳細表示 & GET & /cit/:number & 教室・教員・楽単度などの詳細情報を表示 \\
+\hline 
+削除確認 & GET & /cit/delete\_confirm/:number & 授業データの削除を確認する画面を表示 \\
+\hline 
+削除実行 & POST & /cit/delete/:number & 配列から授業データを削除し，一覧へ戻る \\
+\hline 
+新規登録 & POST & /cit & 新しい授業データを配列の末尾に格納する \\
+\hline 
+編集画面 & GET & /cit/edit/:number & 授業の内容や楽単度を修正するための画面 \\
+\hline 
+更新処理 & POST & /cit/update/:number & 修正内容を配列に反映し，一覧画面へ戻る \\
+ \hline
+\end{tabular}
+\end{table}
+
+\subsubsection{遷移図}
+
+授業一覧画面と詳細画面を密に連携させている．詳細画面から直接「一覧に戻る」ことが可能であり，情報の検索効率を最大化している．
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=0.95\textwidth,clip]{cit.png}
+  \end{center}
+  \caption{\textgt{
+  citの遷移図
+  }}
+  \label{cit}　
+\end{figure}
+
+\subsubsection{リソース名ごとの機能詳細}
+\begin{itemize} 
+\item \textbf{GET /cit} \ 前期に開講される全15科目の授業情報を一覧表示する． 
+\item \textbf{GET /cit/create} \ 授業情報を新規追加するためのフォーム画面を表示する． 
+\item \textbf{GET /cit/:number} \ 指定された授業の詳細情報（担当教員，単位，実施場所，および楽単度コメント）を表示する．データが存在しない場合は404エラーを返す制御を実装している． 
+\item \textbf{GET /cit/delete\_confirm/:number} \ 特定の授業データを削除するための確認用テンプレートを表示する． 
+\item \textbf{POST /cit/delete/:number} \ 指定された添字の授業情報を配列から削除し，授業一覧画面へとリダイレクトする． 
+\item \textbf{POST /cit} \ 入力された授業名，時間，教員名，単位，場所，楽単度を一つのオブジェクトとしてまとめ，授業リスト（\texttt{jugyou}配列）の末尾に追加する． 
+\item \textbf{GET /cit/edit/:number} \ 授業内容の変更や，受講後の感想（楽単度）を追記・修正するための編集画面を表示する． \item \textbf{POST /cit/update/:number} \ 修正された全情報を指定された添字の要素へ反映させ，データの整合性を保った状態で一覧へ戻る． 
+\end{itemize}
+
+\section{管理者向けドキュメント}
+
+\subsection{インストール方法}
+本システムを実行するためには，Node.jsのランタイム環境が必須である．まず，開発環境にNode.jsをインストールした後，プロジェクトのルートディレクトリにおいて，以下のコマンドを実行し，必要な依存ライブラリを導入する．
+\begin{lstlisting}
+npm install express ejs
+\end{lstlisting}
+
+\subsection{起動・終了方法}
+サーバーの起動はターミナルから各システムの主プログラムを指定して行う．例えば授業一覧システムを起動する場合，\texttt{node cit.js} と入力する．正常に起動すると，「http://localhost:3000/cit」にてアクセスが可能となる．サーバーの停止は，ターミナル上で \texttt{Ctrl + C} キーを押下することで安全に終了できる．
+
+\subsection{起動できない場合}
+「Error: listen EADDRINUSE」と表示される場合は，他のアプリケーションが同じポート（3000番）を使用しているため，他のアプリを閉じるかソースコード内のポート番号を変更する必要がある．また，コマンドが見つからない場合は，環境変数の設定を確認する．
+
+\subsection{分かっている不具合}
+本システムはメモリ上にデータを保持する設計思想であるため，サーバープロセスを終了または再起動すると，追加・編集された内容はすべて破棄され，初期状態に戻る制限がある．また，削除機能において，配列のインデックスがずれることで誤った要素が対象となるリスクが僅かに存在する．
+
+\section{利用者向けドキュメント}
+
+\subsection{概要}
+本システムは，エンターテインメントと学業という異なる三つのドメインを一元的に管理できる画期的なプラットフォームである．各情報の基本スペックから詳細な備考までを，Webブラウザを通じて容易に操作できる．
+
+\subsection{使用できる機能}
+利用者は，登録済みのデータを一覧で俯瞰するだけでなく，各項目を選択して詳細なプロフィールを確認することができる．また，最新の状況に合わせて情報を追加したり，誤りがあれば即座に編集・削除を行ったりと，データを常に最新に保つための包括的な操作が提供されている．
+
+\subsection{画面操作ガイド}
+まずシステムを開始する方法としてURL欄に「http://localhost:3000/oor」と入力する．システムを開始すると，まず「ツアー一覧表示」画面が現れる．
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=0.95\textwidth,clip]{itiran1.png}
+  \end{center}
+  \caption{\textgt{
+  ONEOKROCKの歴代ツアーの一覧画面
+  }}
+  \label{cit}　
+\end{figure}
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=0.95\textwidth,clip]{itiran2.png}
+  \end{center}
+  \caption{\textgt{
+  ONEOKROCKの歴代ツアーの一覧画面
+  }}
+  \label{cit}　
+\end{figure}
+
+次にツアーの詳細表示機能について説明する．特定の名称がハイパーリンクとなっており，自分の見たいツアー名をクリックすることで詳細画面へ遷移することができる．詳細画面ではツアー名，アルバム，ツアーの日程，ツアーを行った地域についての項目の情報を知ることができる．右下の「ツアー一覧に戻る」を押すとONEOKROCKの歴代ツアーの一覧画面に戻ることができる．
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=0.95\textwidth,clip]{syousai.png}
+  \end{center}
+  \caption{\textgt{
+  ONEOKROCKの歴代ツアーの詳細画面
+  }}
+  \label{cit}　
+\end{figure}
+
+次にデータの編集機能について説明する．ONEOKROCKの歴代ツアーの詳細画面の「編集」ボタンをクリックすることで編集画面へ遷移することができる．編集画面では自分が編集したい内容を項目ごとに変更することができる．ただし編集する際はアルバムを除いて空欄が無いようにする必要がある．「送信」ボタンをクリックすることで更新することができ，ONEOKROCKの歴代ツアーの一覧画面に戻ることができる．また，「ツアー一覧に戻る」というリンクをクリックすることでもONEOKROCKの歴代ツアーの一覧画面に戻ることができる．
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=0.95\textwidth,clip]{hensyuu.png}
+  \end{center}
+  \caption{\textgt{
+  ONEOKROCKの歴代ツアーの編集画面
+  }}
+  \label{cit}　
+\end{figure}
+
+次にデータの削除機能について説明する．ONEOKROCKの歴代ツアーの一覧画面のツアー名の右にある「削除」というリンクをクリックする．もしくは，ONEOKROCKの歴代ツアーの詳細画面の「削除」というリンクをクリックすることで削除画面へ遷移することができる．削除画面では「本当に削除する」というボタンをクリックすることでそのツアーのページを削除することができONEOKROCKの歴代ツアーの一覧画面に戻ることができる．また，「詳細に戻る」というリンクをクリックすることでONEOKROCKの歴代ツアーの詳細画面に戻ることができる．
+
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=0.95\textwidth,clip]{sakujo.png}
+  \end{center}
+  \caption{\textgt{
+  ONEOKROCKの歴代ツアーの削除画面
+  }}
+  \label{cit}　
+\end{figure}
+
+次にデータの追加機能について説明する．ONEOKROCKの歴代ツアーの一覧画面の一番下にある「追加」というリンクをクリックすることで追加画面へ遷移することができる．追加画面では自分が追加したいツアーとそれについての詳細を追加することができる．ただし追加する際はアルバムを除いて空欄が無いようにする必要がある．「送信」ボタンをクリックすることで更新することができ，ONEOKROCKの歴代ツアーの一覧画面に戻ることができる．
+\begin{figure}[H]
+  \begin{center}
+    \includegraphics[width=0.95\textwidth,clip]{tuika.png}
+  \end{center}
+  \caption{\textgt{
+  ONEOKROCKの歴代ツアーの追加画面
+  }}
+  \label{cit}　
+\end{figure}
+
+\end{document}

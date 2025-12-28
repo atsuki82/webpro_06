@@ -74,7 +74,7 @@ app.get("/oor", (req, res) => {
   res.render('oor', { data: tour });
 });
 
-// 新規作成画面（public/oor.htmlを表示）
+// 新規作成画面
 app.get("/oor/create", (req, res) => {
   res.sendFile(__dirname + '/public/oor.html');
 });
@@ -95,7 +95,7 @@ app.get("/oor/delete_confirm/:number", (req, res) => {
   res.render('oor_delete', { data: detail, id: number });
 });
 
-// 実際の削除実行 (POSTメソッドで安全に削除)
+// 実際の削除実行 
 app.post("/oor/delete/:number", (req, res) => {
   tour.splice(req.params.number, 1);
   res.redirect('/oor');
@@ -124,18 +124,16 @@ app.get("/oor/edit/:number", (req, res) => {
 
 // 更新処理（POST）
 app.post("/oor/update/:number", (req, res) => {
-  const index = req.params.number;
-  if (tour[index]) {
-    tour[index].name = req.body.name;
-    tour[index].album = req.body.album;
-    tour[index].days = req.body.days;
-    tour[index].region = req.body.region;
-  }
+  tour[req.params.number].name = req.body.name;
+  tour[req.params.number].album = req.body.album;
+  tour[req.params.number].days = req.body.days;
+  tour[req.params.number].region = req.body.region;
+  console.log( tour );
   res.redirect('/oor');
 });
 
 
-// ポート8080で待機（エラーが出るなら3000などに変更）
+// ポート8080で待機
 app.listen(3000, () => {
   console.log("Server is running on http://localhost:3000/oor");
 });
@@ -172,11 +170,7 @@ app.get("/cit/create", (req, res) => {
 app.get("/cit/:number", (req, res) => {
   const number = req.params.number;
   const detail = jugyou[number];
-  if (detail) {
-    res.render('cit_detail', { data: detail, id: number });
-  } else {
-    res.status(404).send("授業が見つかりません");
-  }
+  res.render('cit_detail', { data: detail, id: number });
 });
 
 
@@ -185,28 +179,24 @@ app.get("/cit/:number", (req, res) => {
 app.get("/cit/delete_confirm/:number", (req, res) => {
   const number = req.params.number;
   const detail = tour[number];
-  if (detail) {
-    res.render('cit_delete', { data: detail, id: number });
-  } else {
-    res.status(404).send("データが見つかりません");
-  }
+  res.render('cit_delete', { data: detail, id: number });
 });
 
-// 実際の削除実行 (POSTメソッドで安全に削除)
+// 実際の削除実行 
 app.post("/cit/delete/:number", (req, res) => {
   jugyou.splice(req.params.number, 1);
   res.redirect('/cit');
 });
 
-// 新規登録処理（POST）
+// 新規登録処理
 app.post("/cit", (req, res) => {
   const newId = jugyou.length+ 1;
   const newTour = {
     id: newId,
     name: req.body.name,
-    jikann: req.body.jikann, // HTML側のname="album"に合わせる
-    kyousi: req.body.kyousi,   // HTML側のname="days"に合わせる
-    tanni: req.body.tanni, // HTML側のname="region"に合わせる
+    jikann: req.body.jikann, 
+    kyousi: req.body.kyousi,   
+    tanni: req.body.tanni, 
     basyo: req.body.basyo,
     raku: req.body.raku 
   };
@@ -221,17 +211,15 @@ app.get("/cit/edit/:number", (req, res) => {
   res.render('cit_edit', { id: number, data: detail });
 });
 
-// 更新処理（POST）
+// 更新処理
 app.post("/cit/update/:number", (req, res) => {
-  const index = req.params.number;
-  if (jugyou[index]) {
-    jugyou[index].name = req.body.name;
-    jugyou[index].jikann = req.body.jikann;
-    jugyou[index].kyousi = req.body.kyousi;
-    jugyou[index].tanni = req.body.tanni;
-    jugyou[index].basyo = req.body.basyo;
-    jugyou[index].raku = req.body.raku;
-  }
+  jugyou[req.params.number].name = req.body.name;
+  jugyou[req.params.number].jikann = req.body.jikann;
+  jugyou[req.params.number].kyousi = req.body.kyousi;
+  jugyou[req.params.number].tanni = req.body.tanni;
+  jugyou[req.params.number].basyo = req.body.basyo;
+  jugyou[req.params.number].raku = req.body.raku;
+  console.log( jugyou );
   res.redirect('/cit');
 });
 
@@ -317,12 +305,10 @@ app.get("/disney", (req, res) => {
   res.sendFile(__dirname + '/public/disney.html');
 });
 
-// パーク別の一覧表示 (Cannot GET エラーを防ぐためのルート)
+// パーク別の一覧表示 
 app.get("/disney/list/:park", (req, res) => {
   const park = req.params.park;
   const parkName = (park === 'land') ? "東京ディズニーランド" : "東京ディズニーシー";
-  
-  // フィルタリングだけしてEJSに渡す
   res.render('disney', { data: attractions, targetPark: park, parkName: parkName });
 });
 
@@ -331,7 +317,7 @@ app.get("/disney", (req, res) => {
   res.render('disney', { data: attractions });
 });
 
-// 新規作成画面（public/disney.htmlを表示）
+// 新規作成画面
 app.get("/disney/create", (req, res) => {
   res.redirect('/public/disney_new.html');
 });
@@ -355,10 +341,10 @@ app.post("/disney/delete/:number", (req, res) => {
   const number = req.params.number;
   const park = attractions[number].park;
   attractions.splice(req.params.number, 1);
-  res.redirect('/disney/list/' + park); // 元のパーク一覧へ戻る
+  res.redirect('/disney/list/' + park); 
 });
 
-// 新規登録処理（POST）
+// 新規登録処理
 app.post("/disney", (req, res) => {
   const id = attractions.length + 1;
   const newItem = {
@@ -383,11 +369,10 @@ app.get("/disney/edit/:number", (req, res) => {
 
 // 更新処理
 app.post("/disney/update/:number", (req, res) => {
-  const number = req.params.number;
-  attractions[number].name = req.body.name;
-  attractions[number].area = req.body.area;
-  attractions[number].capacity = req.body.capacity;
-  attractions[number].duration = req.body.duration;
-  attractions[number].wait = req.body.wait;
-  res.redirect('/disney/list/' + attractions[number].park); // 元のパーク一覧へ戻る
+  attractions[req.params.number].name = req.body.name;
+  attractions[req.params.number].area = req.body.area;
+  attractions[req.params.number].capacity = req.body.capacity;
+  attractions[req.params.number].duration = req.body.duration;
+  attractions[req.params.number].wait = req.body.wait;
+  res.redirect('/disney/list/' + attractions[req.params.number].park); 
 });
